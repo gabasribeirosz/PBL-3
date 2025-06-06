@@ -196,7 +196,7 @@ Arquivo de cabeçalho contendo:
 - `MATRIX_SIZE` (25): representa o tamanho linear de uma matriz 5×5;
 - `HW_SUCCESS` e `HW_SEND_FAIL`: códigos de retorno para interface FPGA.
 
-### Estrutura de dados `Params` usada para empacotar os argumentos enviados à FPGA:
+#### 5.2.2 Estrutura de dados `Params` usada para empacotar os argumentos enviados à FPGA:
 ```c
 struct Params {
   const uint8_t* a;   // Ponteiro para janela de pixels
@@ -204,4 +204,14 @@ struct Params {
   uint32_t opcode;    // Código de operação (e.g., 7 = convolução)
   uint32_t size;      // Tamanho do kernel (interpretação FPGA)
 };
+```
+#### 5.2.3 Funções Assembly prototipadas:
+
+```
+extern int initiate_hardware(void);
+extern int terminate_hardware(void);
+extern int transfer_data_to_fpga(const struct Params* p);
+extern int retrieve_fpga_results(uint8_t* result);
+```
+
 
