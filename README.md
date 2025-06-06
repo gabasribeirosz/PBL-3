@@ -291,3 +291,19 @@ Implementação em **Assembly ARM**, responsável por intermediar a comunicaçã
 - Lê o byte transferido e confirma a leitura ao desativar o sinal.
 
 ---
+
+### 5.4 Makefile
+
+Automatiza o ciclo de compilação e execução do projeto:
+
+#### 5.4.1 Funcionalidades:
+
+- Compilação C (main.c) com otimizações e includes (-O2, -I.);
+- Montagem Assembly (lib.s) com as;
+- Linkagem final com gcc e link para -lm (biblioteca matemática);
+
+#### 5.4.2 Alvos adicionais:
+
+- run: executa o programa;
+- clean: remove binários e objetos;
+- debug: recompila com -g e abre com gdb.
