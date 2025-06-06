@@ -53,7 +53,7 @@ O funcionamento é o seguinte:
 
 **Matematicamente:**
 
-R(x, y) = Σ_{i=-k}^{k} Σ_{j=-k}^{k} I(x+i, y+j) × K(i, j)
+![Texto alternativo](convolucao.png)
 
 **Onde:**
 
