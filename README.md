@@ -307,3 +307,99 @@ Automatiza o ciclo de compilação e execução do projeto:
 - run: executa o programa;
 - clean: remove binários e objetos;
 - debug: recompila com -g e abre com gdb.
+
+---
+
+### 5.5 `convolution.v`
+
+Este módulo Verilog implementa o **núcleo de convolução 2D parametrizável**, responsável por aplicar o filtro (kernel) à janela de pixels recebida do HPS via registradores.
+
+
+### 5.5.1 Descrição do Módulo
+
+```verilog
+module convolution (
+    input  [199:0] pixel,        // Janela de pixels (5x5) - valores unsigned 8 bits
+    input  [199:0] matrix_b,     // Kernel de convolução (5x5) - valores signed 8 bits
+    input  [1:0]   matrix_size,  // Tamanho efetivo: 00=2x2, 01=3x3, 10=4x4, 11=5x5
+    output [199:0] result_out    // Resultado expandido para 200 bits (MSBs = 0)
+);
+```
+
+### 5.5.2 Funcionalidades
+
+- Suporte a **diferentes tamanhos de kernel** (2×2 até 5×5), definidos via `matrix_size`;
+- Funções auxiliares internas para:
+  - Obtenção de valores individuais dos pixels e do kernel via índice linear;
+  - Verificação se a posição `(row, col)` está dentro dos limites especificados pelo tamanho da matriz;
+  - Conversão explícita de pixels unsigned para signed:
+    ```verilog
+    $signed({1'b0, pixel_val})
+    ```
+- **Loop aninhado 5×5** com filtragem condicional com base no tamanho do kernel (`matrix_size`);
+- Acúmulo dos produtos convolucionais em `sum`, do tipo `signed [15:0]`;
+- Resultado da convolução é atribuído a `conv_result` e posicionado nos **LSBs de `result_out`**, com os bits superiores zerados para compatibilidade.
+
+---
+
+### 5.5.3 Observações Técnicas
+
+- O cálculo da convolução **preserva o sinal**, permitindo o uso de kernels como Sobel, Prewitt e Laplace (com valores negativos);
+- A largura da saída `result_out` é **200 bits** para manter compatibilidade com o barramento, **mas apenas os 16 bits menos significativos (LSBs)** contêm o valor real;
+- O mapeamento das janelas e kernels é sempre baseado em uma estrutura 5×5 fixa.  
+  As posições fora da submatriz desejada (e.g. 3×3) são automaticamente **ignoradas** conforme o controle via `matrix_size`.
+
+---
+
+## 6 Resultados Obtidos
+
+### 6.1 Funcionalidades Implementadas
+
+O sistema desenvolvido demonstrou pleno funcionamento em todos os aspectos avaliados, conforme detalhado na tabela abaixo:
+
+| Funcionalidade                        | Status       | Observações                                                                                     |
+|:--------------------------------------|:-------------|:------------------------------------------------------------------------------------------------|
+| **Leitura e redimensionamento de imagens** | ✅ Implementado | Suporte completo para formato padrão, com redimensionamento automático para 320×240 pixels        |
+| **Aplicação de filtros de detecção de bordas** | ✅ Implementado | Todos os filtros disponíveis (**Sobel**, **Prewitt**, **Roberts**, **Laplaciano**) operacionais  |
+| **Comunicação HPS ↔ FPGA via mmap**       | ✅ Implementado | Interface de comunicação estável e eficiente através de mapeamento de memória                   |
+| **Detecção de bordas com qualidade visual** | ✅ Implementado | Resultados visualmente satisfatórios em todas as imagens testadas                                |
+| **Salvamento automático de resultados**  | ✅ Implementado | Armazenamento automático das imagens processadas no diretório `output/` com nomenclatura padronizada |
+
+---
+
+### 6.2 Desempenho do Sistema
+
+#### 6.2.1 Eficiência da Aceleração por Hardware
+
+A implementação do coprocessador na FPGA demonstrou **melhoria significativa no desempenho das operações convolucionais**, destacando-se em:
+
+-  **Processamento de kernels 3×3 em tempo real**.
+-  **Redução da carga computacional sobre o processador ARM**, liberando recursos para outras tarefas.
+-  **Manutenção da precisão dos cálculos matemáticos**, garantindo resultados consistentes em todas as imagens testadas.
+
+---
+
+#### 6.2.2 Qualidade dos Resultados
+
+Os filtros de detecção de bordas aplicados sobre as imagens apresentaram:
+
+- **Definição adequada das bordas**, principalmente em imagens com contraste médio a alto.
+- **Minimização de ruído nas regiões homogêneas**, reduzindo falsos positivos de borda.
+- **Preservação de detalhes importantes** nas regiões de transição de intensidade, garantindo boa percepção visual dos contornos.
+
+---
+
+### 6.3 Validação dos Requisitos
+
+O projeto atendeu **integralmente aos requisitos estabelecidos**, conforme descrito abaixo:
+
+- ✅ **Requisitos Funcionais**:  
+  Todos os filtros previstos (**Sobel 3×3**, **Sobel 5×5**, **Prewitt 3×3**, **Roberts 2×2** e **Laplaciano 5×5**) foram implementados e testados com sucesso.
+
+- ✅ **Requisitos de Desempenho**:  
+  A aceleração via coprocessador FPGA demonstrou-se eficaz para o **processamento em tempo real**, especialmente para imagens de 320×240 pixels.
+
+- ✅ **Requisitos de Interface**:  
+  A comunicação entre HPS e FPGA via **memória mapeada (mmap)** funcionou de forma **estável, confiável e com handshakes sincronizados**, garantindo integridade na transmissão e recebimento dos dados.
+
+---
