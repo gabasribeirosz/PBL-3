@@ -162,3 +162,46 @@ O protocolo garante integridade e sincronização entre as etapas de envio de da
 5. Salva a imagem final no diretório `output/` com identificação do filtro aplicado.
 
 ---
+
+## 5 Desenvolvimento
+
+Este projeto realiza processamento de imagens com filtros de detecção de bordas utilizando um coprocessador na FPGA da plataforma DE1-SoC, com interação via HPS (ARM Cortex-A9) através de memória mapeada.
+
+### 5.1 `main.c`
+
+Responsável pelo fluxo completo de processamento das imagens:
+
+- Leitura e redimensionamento de imagens de entrada no diretório `input/`, utilizando `stb_image`;
+- Conversão de imagens RGB para escala de cinza com base na fórmula de luminância: (0.299*R + 0.587*G + 0.114*B);
+- Extração de janelas de vizinhança (2×2, 3×3 ou 5×5) ao redor de cada pixel, com tratamento de bordas (padding zero);
+- Envio das janelas e kernels para a FPGA, através da função `transfer_data_to_fpga()`;
+- Recepção dos resultados processados via `retrieve_fpga_results()` e reconstrução do valor final;
+- Cálculo da magnitude do gradiente (`√(Gx² + Gy²)`) para filtros com duas direções (Gx/Gy), ou valor absoluto para Laplace (unidirecional);
+- Saturação dos valores convoluídos para a faixa [0, 255];
+- Salvamento da imagem resultante no diretório `output/` como PNG com nome indicativo do filtro utilizado.
+
+O código também permite **seleção dinâmica do filtro desejado via terminal**:
+- Sobel 3x3 / 5x5  
+- Prewitt 3x3  
+- Roberts 2x2  
+- Laplace 5x5
+
+---
+
+### 5.2 `hps_0.h`
+
+Arquivo de cabeçalho contendo:
+
+#### 5.2.1 Definições de constantes:
+- `MATRIX_SIZE` (25): representa o tamanho linear de uma matriz 5×5;
+- `HW_SUCCESS` e `HW_SEND_FAIL`: códigos de retorno para interface FPGA.
+
+### Estrutura de dados `Params` usada para empacotar os argumentos enviados à FPGA:
+```c
+struct Params {
+  const uint8_t* a;   // Ponteiro para janela de pixels
+  const int8_t* b;    // Ponteiro para kernel do filtro
+  uint32_t opcode;    // Código de operação (e.g., 7 = convolução)
+  uint32_t size;      // Tamanho do kernel (interpretação FPGA)
+};
+
