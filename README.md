@@ -292,7 +292,7 @@ Implementação em **Assembly ARM**, responsável por intermediar a comunicaçã
 
 ---
 
-### 5.4 Makefile
+### 5.4 `Makefile`
 
 Automatiza o ciclo de compilação e execução do projeto:
 
