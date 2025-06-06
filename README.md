@@ -214,4 +214,80 @@ extern int transfer_data_to_fpga(const struct Params* p);
 extern int retrieve_fpga_results(uint8_t* result);
 ```
 
+#### 5.2.4 Definição dos kernels de borda (todos mapeados para matrizes 5x5 com padding zero):
 
+- sobel_gx_3x3, sobel_gy_3x3
+- sobel_gx_5x5, sobel_gy_5x5
+- prewitt_gx_3x3, prewitt_gy_3x3
+- roberts_gx_2x2, roberts_gy_2x2
+- laplace_5x5
+
+---
+
+### 5.3 `lib.s`
+
+Implementação em **Assembly ARM**, responsável por intermediar a comunicação entre o **HPS** e os **registradores da FPGA** via acesso direto a `/dev/mem`.
+
+---
+
+#### 5.3.1 Inicialização e Finalização
+
+##### 5.3.1.1 🟢 `initiate_hardware`
+
+- Abre o dispositivo `/dev/mem` usando `open` (SVC 5);
+- Realiza o mapeamento da região do Lightweight HPS–FPGA Bridge com `mmap2` (SVC 192);
+- Inicializa os ponteiros globais:
+  - `data_in_ptr` (ponteiro base para escrita);
+  - `data_out_ptr` (ponteiro base para leitura).
+
+##### 5.3.1.2 🔴 `terminate_hardware`
+
+- Desfaz o mapeamento da memória com `munmap` (SVC 91);
+- Fecha o descritor de `/dev/mem` com `close` (SVC 6);
+- Zera os ponteiros globais para evitar acessos inválidos.
+
+---
+
+#### 5.3.2 Envio de Dados para a FPGA
+
+##### 5.3.2.1 `transfer_data_to_fpga(struct Params* p)`
+
+- Envia **25 pares (pixel + kernel)** de dados para o coprocessador implementado na FPGA;
+- Controla os bits de sinal da transação via registradores:
+
+| Bit | Função   |
+|-----|----------|
+| 29  | Reset    |
+| 30  | Start    |
+| 31  | Handshake (controle síncrono) |
+
+- Aplica um **delay de ciclos (`DELAY_CYCLES`)** entre os pulsos de `reset` e `start` para sincronização;
+- Utiliza a rotina auxiliar `handshake_send` para garantir a **entrega correta e confirmada** dos dados.
+
+---
+
+#### 5.3.3 Recepção dos Resultados
+
+##### 5.3.3.1 `retrieve_fpga_results(uint8_t* result)`
+
+- Recebe **25 bytes** contendo os dados processados pela FPGA;
+- Utiliza a função `handshake_receive()`, que monitora o **bit 31** do registrador `data_out` para **sincronização com o coprocessador**;
+- Lê os dados da FPGA com **confirmação explícita** por parte do HPS (acknowledgment handshake).
+
+---
+
+#### 5.3.4 Handshake
+
+##### `handshake_send(uint32_t value)`
+
+- Seta o **bit 31 de controle** no registrador `data_in`;
+- Aguarda o reconhecimento (ACK) da FPGA via **bit 31 em `data_out`**;
+- Finaliza o handshake ao limpar o valor enviado.
+
+##### `handshake_receive(uint8_t* value_out)`
+
+- Ativa o **bit 31** para sinalizar que o HPS está pronto para receber;
+- Aguarda o envio da FPGA (também sinalizado via bit 31);
+- Lê o byte transferido e confirma a leitura ao desativar o sinal.
+
+---
