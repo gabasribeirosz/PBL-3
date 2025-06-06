@@ -351,6 +351,103 @@ module convolution (
 
 ---
 
+### 5.6 📄 `coprocessor.v`
+
+Este módulo representa o **coprocessador lógico** da FPGA, responsável por executar operações sobre duas matrizes 5×5 com base no código de operação recebido.
+
+---
+
+#### 5.6.1 Funcionalidade
+
+- Recebe:
+  - `op_code`: código da operação (3 bits);
+  - `matrix_size`: tamanho do kernel (2x2 até 5x5);
+  - `matrix_a`: janela de pixels (imagem);
+  - `matrix_b`: kernel/filtro.
+  
+- Realiza a **instanciação direta do módulo `convolution`**, que executa a multiplicação pixel a pixel entre `matrix_a` e `matrix_b`, acumulando o resultado conforme o tamanho configurado.
+
+- A saída da operação (`result_convolution`) é atribuída a `result_final` **apenas quando `op_code == 3'b111`** (convolução).
+
+- Sinaliza conclusão com `process_Done`.
+
+---
+
+#### 5.6.2 Estrutura interna
+
+- Internamente, o módulo suporta extensão para múltiplas operações. Atualmente, apenas a operação de convolução está implementada;
+- Os resultados intermediários são conectados diretamente por fios (`wire`) com o módulo `convolution`.
+
+---
+
+### 5.7 `control_unit.v`
+
+Este módulo é a **unidade de controle principal** entre o **HPS e o coprocessador da FPGA**, implementada como uma FSM (Máquina de Estados Finitos).
+
+---
+
+#### 5.7.1 Funções principais
+
+- Interface com o barramento HPS ↔ FPGA via registradores de 32 bits:
+  - `data_in`: recebe dados enviados do HPS;
+  - `data_out`: envia resultados da FPGA para o HPS.
+
+- Executa três fases principais:
+  1. **Recepção de dados** (`RECEIVING`)
+  2. **Processamento no coprocessador** (`PROCESSING`)
+  3. **Envio de resultados** (`SENDING`)
+
+- Monitora sinal de handshake HPS → FPGA (`bit 31` do `data_in`) para detectar **borda de subida**.
+
+---
+
+#### 5.7.2 Estrutura FSM
+
+| Estado      | Ação                                                             |
+|-------------|------------------------------------------------------------------|
+| `IDLE`      | Espera comando de início (`start_in`)                            |
+| `RECEIVING` | Armazena elementos das matrizes A, B, e C recebidas do HPS       |
+| `PROCESSING`| Aguarda sinal `done_signal` do coprocessador                     |
+| `SENDING`   | Retorna os 25 resultados da matriz processada via `data_out`     |
+
+---
+
+### 5.7.3 Interface com o coprocessador
+
+- **Flattening das matrizes** `matrix_a`, `matrix_b`, `matrix_c` para barramentos de 200 bits via bloco `generate`;
+- **Instanciação do `coprocessor`** com os sinais necessários:
+  ```verilog
+  coprocessor coprocessor (
+      .op_code(op_code),
+      .matrix_size(matrix_size),
+      .matrix_a(matrix_a_flat),
+      .matrix_b(matrix_b_flat),
+      .result_final(matrix_out),
+      .process_Done(done_signal)
+  );
+
+  ### 5.7.4 Sincronização HPS–FPGA
+
+- Utiliza uma **cadeia de registradores** (`hps_ready_sync`) para detectar **bordas de subida** no sinal `hps_ready` enviado pelo HPS;
+- O sinal `fpga_wait` informa ao HPS quando a FPGA está **ocupada**, durante os estados `RECEIVING` ou `SENDING`;
+- O registrador de saída `data_out` é estruturado da seguinte forma:
+
+| Bit    | Nome       | Descrição                                 |
+| ------ | ---------- | ----------------------------------------- |
+| 31     | fpga\_ack  | Indica que a FPGA está pronta ou enviando |
+| 30 – 8 | zeros      | Reservado (não utilizado)                 |
+| 7 – 0  | data\_byte | Byte da matriz resultado (1 por ciclo)    |
+
+### 5.7.5 Observações
+
+- Os dados são **recebidos e enviados um elemento por vez**, utilizando protocolo de handshake;
+- As matrizes `A`, `B` e `C` são armazenadas internamente como **vetores de registradores**:
+```verilog
+reg [7:0] matrix_a [0:24];
+reg signed [7:0] matrix_b [0:24];
+reg signed [7:0] matrix_c [0:24];
+```
+
 ## 6 Resultados Obtidos
 
 ### 6.1 Funcionalidades Implementadas
