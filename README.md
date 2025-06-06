@@ -68,13 +68,13 @@ A convolução é extremamente útil para operações como **detecção de borda
 
 ### 3.2 Filtros de Detecção de Bordas
 
-Filtros detectores de bordas são operadores baseados em convolução que identificam regiões de transição abrupta de intensidade na imagem — locais onde há uma variação rápida entre tons claros e escuros. Cada filtro possui suas particularidades no cálculo dos gradientes e sensibilidade a ruídos e detalhes.
+Filtros detectores de bordas são operadores baseados em convolução que identificam regiões de transição abrupta de intensidade na imagem, locais onde há uma variação rápida entre tons claros e escuros. Cada filtro possui suas particularidades no cálculo dos gradientes e sensibilidade a ruídos e detalhes.
 
 Abaixo, detalhamos os filtros utilizados neste projeto:
 
 | Filtro        | Descrição Detalhada |
 |:--------------|:--------------------|
-| **Sobel 3×3**  | Filtro derivativo de primeira ordem que utiliza dois kernels — um para o gradiente na direção horizontal (**Gx**) e outro na vertical (**Gy**). Os pesos são maiores nas posições centrais das bordas, conferindo maior ênfase a essas regiões. Por incluir suavização, é mais robusto a ruídos do que o Prewitt. |
+| **Sobel 3×3**  | Filtro derivativo de primeira ordem que utiliza dois kernels, um para o gradiente na direção horizontal (**Gx**) e outro na vertical (**Gy**). Os pesos são maiores nas posições centrais das bordas, conferindo maior ênfase a essas regiões. Por incluir suavização, é mais robusto a ruídos do que o Prewitt. |
 | **Sobel 5×5**  | Versão expandida do Sobel tradicional, onde os kernels passam de 3×3 para 5×5. Isso permite analisar uma vizinhança maior, tornando o filtro mais eficaz na detecção de bordas em imagens com muitos detalhes ou com ruídos leves, pois suaviza variações locais indesejadas. |
 | **Prewitt 3×3**| Assim como o Sobel, é um filtro de primeira derivada, mas utiliza pesos uniformes no cálculo do gradiente. Por ser mais simples, é mais rápido de calcular, porém mais suscetível a ruído. Sua aplicação é semelhante à do Sobel, mas com menor precisão em imagens de baixa qualidade. |
 | **Roberts 2×2**| Filtro compacto que calcula a diferença entre pixels adjacentes na diagonal. Ideal para destacar detalhes finos e contornos abruptos, mas muito sensível a ruídos. Por usar janelas 2×2, oferece alta precisão local, mas menor robustez geral. |
