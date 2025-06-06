@@ -1,7 +1,7 @@
 # 📑 Problema 3: Filtro Detector de Bordas com FPGA (DE1-SoC)
 
 <div align="center">
-  Doscente: Wild Freitas
+  Docente: Wild Freitas
 </div>
 
 <div align="center">
