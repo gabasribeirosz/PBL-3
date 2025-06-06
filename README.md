@@ -387,6 +387,19 @@ Os filtros de detecção de bordas aplicados sobre as imagens apresentaram:
 - **Minimização de ruído nas regiões homogêneas**, reduzindo falsos positivos de borda.
 - **Preservação de detalhes importantes** nas regiões de transição de intensidade, garantindo boa percepção visual dos contornos.
 
+
+| ![Descrição](imagem_sobel_3x3.png) | ![Descrição](imagem_sobel_5x5.png) |
+|:--:| :--:|
+| *Figura 1: Imagem com filtro Sobel 3x3.* | *Figura 3: Imagem com filtro Sobel 5x5.* |
+
+| ![Descrição](imagem_prewitt_3x3.png) | ![Descrição](imagem_laplace_5x5.png)
+|:--:| :--:|
+| *Figura 2: Imagem com filtro Prewitt 3x3.* | *Figura 4: Imagem com filtro Laplace 5x5.*
+
+| ![Descrição](imagem_roberts_2x2.png) |
+|:--:|
+| *Figura 5: Imagem com filtro Roberts 2x2.* |
+
 ---
 
 ### 6.3 Validação dos Requisitos
