@@ -403,3 +403,23 @@ O projeto atendeu **integralmente aos requisitos estabelecidos**, conforme descr
   A comunicação entre HPS e FPGA via **memória mapeada (mmap)** funcionou de forma **estável, confiável e com handshakes sincronizados**, garantindo integridade na transmissão e recebimento dos dados.
 
 ---
+
+## 7 Conclusão
+
+O projeto atendeu todos os requisitos propostos, demonstrando: A correta integração entre HPS e FPGA, a eficiência na aceleração de operações convolucionais via coprocessador, a eficácia dos filtros de detecção de borda em imagens de 320×240 pixels e a importância do uso de interfaces padronizadas de comunicação para sistemas embarcados complexos. Para trabalhos futuros, recomenda-se implementar: Suporte a pré-filtros suavizadores (Gaussiano), medidas de tempo de processamento para benchmarking, ajuste dinâmico do opcode size na função calcular_convolucao_fpga.
+
+## 8. Referências
+
+[1] ARM Limited. **ARM Cortex-A9 Technical Reference Manual**. ARM DDI 0388I (ID091612), 2012.
+
+[2] Intel Corporation. **Intel SoC FPGA Embedded Development Suite User Guide**. UG-1137, Version 16.1, 2016.
+
+[3] Altera Corporation. **Cyclone V Hard Processor System Technical Reference Manual**. CV-5V2, Version 15.1, 2015.
+
+[4] TERASIC Inc. **DE1-SoC User Manual**. Version 1.2.4, 2014. Disponível em: https://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&CategoryNo=205&No=836
+
+[5] ARM Limited. **ARM Architecture Reference Manual ARMv7-A and ARMv7-R edition**. ARM DDI 0406C.d, 2018.
+
+[6] GOLUB, Gene H.; VAN LOAN, Charles F. **Matrix Computations**. 4th ed. Baltimore: Johns Hopkins University Press, 2013.
+
+[7] PATTERSON, David A.; HENNESSY, John L. **Computer Organization and Design: The Hardware/Software Interface**. 5th ed. Morgan Kaufmann, 2013.
