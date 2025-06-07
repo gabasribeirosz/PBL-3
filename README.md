@@ -66,6 +66,12 @@ A convolução é extremamente útil para operações como **detecção de borda
 
 ---
 
+## 3.1.1 Tratamento de Overflow
+
+Durante o processo de convolução, os valores resultantes podem exceder a faixa de representação de pixels (0-255 para imagens de 8 bits). Para lidar com esse overflow, foi implementada uma etapa de saturação, onde quaisquer valores resultantes da convolução que estejam abaixo de 0 são ajustados para 0, e valores acima de 255 são ajustados para 255. Isso garante que a imagem de saída mantenha a integridade visual e os valores de pixel permaneçam dentro do intervalo válido.
+
+---
+
 ### 3.2 Filtros de Detecção de Bordas
 
 Filtros detectores de bordas são operadores baseados em convolução que identificam regiões de transição abrupta de intensidade na imagem, locais onde há uma variação rápida entre tons claros e escuros. Cada filtro possui suas particularidades no cálculo dos gradientes e sensibilidade a ruídos e detalhes.
