@@ -12,8 +12,6 @@
 #include <errno.h>    // Para lidar com códigos de erro do sistema (errno).
 #include "hps_0.h"
 
-// --- Constantes Globais ---
-
 // Define o tamanho linear da matriz/janela usada nas operações (5x5 = 25).
 #define TAMANHO_MATRIZ_LINEAR 25
 // Define a largura padrão das imagens processadas (em pixels).
