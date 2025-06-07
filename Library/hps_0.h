@@ -2,12 +2,12 @@
 #define HPS_0_H
 #include <stdint.h>
 
-/* ========== CONSTANTES DE STATUS ========== */
+/* Constantes de Status */
 #define MATRIX_SIZE 25
 #define HW_SUCCESS      0
 #define HW_SEND_FAIL   -1
 
-/* ========== ESTRUTURAS DE DADOS ========== */
+/* Estrutura dos Dados */
 struct Params {
     const uint8_t* a;
     const int8_t* b;
@@ -15,13 +15,13 @@ struct Params {
     uint32_t size; 
 };
 
-/* ========== DECLARAÇÕES DE FUNÇÕES ASSEMBLY ========== */
+/* Declarações de Funções do Assembly */
 extern int initiate_hardware(void);
 extern int terminate_hardware(void);
 extern int transfer_data_to_fpga(const struct Params* p);
 extern int retrieve_fpga_results(uint8_t* result);
 
-/* ========== KERNELS DOS FILTROS DE BORDA ========== */
+/* Kernels */
 
 // Sobel 3x3 (mapeado para matriz 5x5 com zeros)
 extern int8_t sobel_gx_3x3[MATRIX_SIZE];
