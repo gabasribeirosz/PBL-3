@@ -326,7 +326,7 @@ Este módulo Verilog implementa o **núcleo de convolução 2D parametrizável**
 ```verilog
 module convolution (
     input  [199:0] pixel,        // Janela de pixels (5x5) - valores unsigned 8 bits
-    input  [199:0] matrix_b,     // Kernel de convolução (5x5) - valores signed 8 bits
+    input  [199:0] kernel,     // Kernel de convolução (5x5) - valores signed 8 bits
     input  [1:0]   matrix_size,  // Tamanho efetivo: 00=2x2, 01=3x3, 10=4x4, 11=5x5
     output [199:0] result_out    // Resultado expandido para 200 bits (MSBs = 0)
 );
@@ -368,8 +368,8 @@ Este módulo representa o **coprocessador lógico** da FPGA, responsável por ex
 - Recebe:
   - `op_code`: código da operação (3 bits);
   - `matrix_size`: tamanho do kernel (2x2 até 5x5);
-  - `matrix_a`: janela de pixels (imagem);
-  - `matrix_b`: kernel/filtro.
+  - `pixel`: janela de pixels (imagem);
+  - `kernel`: kernel/filtro.
   
 - Realiza a **instanciação direta do módulo `convolution`**, que executa a multiplicação pixel a pixel entre `matrix_a` e `matrix_b`, acumulando o resultado conforme o tamanho configurado.
 
