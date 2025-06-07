@@ -85,7 +85,12 @@ function signed [15:0] image_convolution;
             end
         end
 
-        image_convolution = sum; // Retorna o resultado final
+        // Verifica se a soma ultrapassou o valor 128 (saturação)
+        if (sum > 128) begin
+            image_convolution = 255; // Saturar para o valor máximo de 255
+        end else begin
+            image_convolution = sum; // Caso contrário, mantém o valor calculado
+        end
     end
 endfunction
 
