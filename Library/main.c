@@ -123,10 +123,6 @@ int8_t laplace_5x5[TAMANHO_MATRIZ_LINEAR] = {
      0,  0, -1,  0,  0    // linha 4
 };
 
-/* ====================================================== */
-/* ========== FUNÇÕES DE PROCESSAMENTO DE IMAGEM ========== */
-/* ====================================================== */
-
 /**
  * @brief Carrega uma imagem de um arquivo e a redimensiona para as dimensões LARGURA_PADRAO_IMG x ALTURA_PADRAO_IMG.
  * 
