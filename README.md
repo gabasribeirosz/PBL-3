@@ -426,10 +426,10 @@ Este módulo é a **unidade de controle principal** entre o **HPS e o coprocessa
   coprocessor coprocessor (
     .op_code(op_code),
     .matrix_size(matrix_size),
-    .matrix_a(pixel_flat),
-    .matrix_b(kernel_flat),
-    .result_final(matrix_out),
-    .process_Done(done_signal)
+    .pixel_data(pixel_flat),
+    .kernel_data(kernel_flat),
+    .process_Done(done_signal),
+    .result_final(matrix_out)
   );
 
   ### 5.7.4 Sincronização HPS–FPGA
