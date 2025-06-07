@@ -424,12 +424,12 @@ Este módulo é a **unidade de controle principal** entre o **HPS e o coprocessa
 - **Instanciação do `coprocessor`** com os sinais necessários:
   ```verilog
   coprocessor coprocessor (
-      .op_code(op_code),
-      .matrix_size(matrix_size),
-      .matrix_a(matrix_a_flat),
-      .matrix_b(matrix_b_flat),
-      .result_final(matrix_out),
-      .process_Done(done_signal)
+    .op_code(op_code),
+    .matrix_size(matrix_size),
+    .matrix_a(pixel_flat),
+    .matrix_b(kernel_flat),
+    .result_final(matrix_out),
+    .process_Done(done_signal)
   );
 
   ### 5.7.4 Sincronização HPS–FPGA
