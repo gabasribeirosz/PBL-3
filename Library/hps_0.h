@@ -21,7 +21,7 @@ extern int terminate_hardware(void);
 extern int transfer_data_to_fpga(const struct Params* p);
 extern int retrieve_fpga_results(uint8_t* result);
 
-/* Kernels */
+/* Kernels dos Filtros */
 
 // Sobel 3x3 (mapeado para matriz 5x5 com zeros)
 extern int8_t sobel_gx_3x3[MATRIX_SIZE];
