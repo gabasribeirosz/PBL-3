@@ -137,8 +137,8 @@ coprocessor coprocessor (
     .matrix_size(matrix_size),
     .pixel_data(pixel_flat),       // pixel = entrada da imagem
     .kernel_data(kernel_flat),      // kernel = filtro/convolução
-    .process_Done(done_signal)
-    .result_final(matrix_out),
+    .process_Done(done_signal),
+    .result_final(matrix_out)
 );
 
 endmodule
