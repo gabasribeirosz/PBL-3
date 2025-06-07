@@ -135,10 +135,10 @@ endgenerate
 coprocessor coprocessor (
     .op_code(op_code),
     .matrix_size(matrix_size),
-    .matrix_a(pixel_flat),       // pixel = entrada da imagem
-    .matrix_b(kernel_flat),      // kernel = filtro/convolução
-    .result_final(matrix_out),
+    .pixel_data(pixel_flat),       // pixel = entrada da imagem
+    .kernel_data(kernel_flat),      // kernel = filtro/convolução
     .process_Done(done_signal)
+    .result_final(matrix_out),
 );
 
 endmodule
