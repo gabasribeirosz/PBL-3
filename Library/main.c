@@ -41,16 +41,14 @@ unsigned char imagem_global_cinza[ALTURA_PADRAO_IMG][LARGURA_PADRAO_IMG];
 // O tipo `tipo_pixel_imagem` (uint8_t) é usado para os elementos.
 tipo_pixel_imagem janela_global_pixels[TAMANHO_MATRIZ_LINEAR];
 
-/* ======================================================== */
 /* ========== DEFINIÇÕES DOS KERNELS DOS FILTROS ========== */
-/* ======================================================== */
 // Kernels pré-definidos para diferentes filtros de detecção de borda.
 // Todos são representados como matrizes lineares de `TAMANHO_MATRIZ_LINEAR` (25) elementos `int8_t`,
 // mesmo que o kernel original seja menor (e.g., 3x3 ou 2x2). Os elementos não utilizados
 // são preenchidos com zero para compatibilidade com a interface da FPGA que espera uma matriz 5x5.
 // **NOTA:** Os nomes dos kernels foram mantidos para possível compatibilidade externa ou convenção.
 
-// --- Filtro Sobel 3x3 --- 
+// --- Kernel Sobel 3x3 --- 
 int8_t sobel_gx_3x3[TAMANHO_MATRIZ_LINEAR] = {
      0,  0,  0,  0,  0,   // linha 0 (padding)
      0, -1,  0,  1,  0,   // linha 1 (kernel original)
@@ -66,7 +64,7 @@ int8_t sobel_gy_3x3[TAMANHO_MATRIZ_LINEAR] = {
      0,  0,  0,  0,  0    // linha 4 (padding)
 };
 
-// --- Filtro Sobel 5x5 --- 
+// --- Kernel Sobel 5x5 --- 
 int8_t sobel_gx_5x5[TAMANHO_MATRIZ_LINEAR] = {
      2,  2,  4,  2,  2,   // linha 0
      1,  1,  2,  1,  1,   // linha 1
@@ -82,7 +80,7 @@ int8_t sobel_gy_5x5[TAMANHO_MATRIZ_LINEAR] = {
      2,  1,  0, -1, -2,   // linha 4
 };
 
-// --- Filtro Prewitt 3x3 --- 
+// --- Kernel Prewitt 3x3 --- 
 int8_t prewitt_gx_3x3[TAMANHO_MATRIZ_LINEAR] = {
      0,  0,  0,  0,  0,   // linha 0 (padding)
      0, -1,  0,  1,  0,   // linha 1 (kernel original)
@@ -98,7 +96,7 @@ int8_t prewitt_gy_3x3[TAMANHO_MATRIZ_LINEAR] = {
      0,  0,  0,  0,  0    // linha 4 (padding)
 };
 
-// --- Filtro Roberts 2x2 --- 
+// --- Kernel Roberts 2x2 --- 
 int8_t roberts_gx_2x2[TAMANHO_MATRIZ_LINEAR] = {
      1,  0,  0,  0,  0,   // linha 0 (kernel original)
      0, -1,  0,  0,  0,   // linha 1 (kernel original)
@@ -114,7 +112,7 @@ int8_t roberts_gy_2x2[TAMANHO_MATRIZ_LINEAR] = {
      0,  0,  0,  0,  0    // linha 4 (padding)
 };
 
-// --- Filtro Laplaciano 5x5 --- 
+// --- Kernel Laplaciano 5x5 --- 
 int8_t laplace_5x5[TAMANHO_MATRIZ_LINEAR] = {
      0,  0, -1,  0,  0,   // linha 0
      0, -1, -2, -1,  0,   // linha 1
@@ -442,14 +440,13 @@ void aplicar_filtro_operacao(int8_t* ponteiro_kernel_gx, int8_t* ponteiro_kernel
     
     int coord_x, coord_y; // Variáveis de iteração.
     
-    printf("Processando imagem com filtro de borda (usando FPGA)...\n");
+    printf("Processando imagem com filtro de borda...\n");
     
     // Inicializa os buffers intermediários com zero.
     memset(buffer_gradiente_x, 0, sizeof(buffer_gradiente_x));
     memset(buffer_gradiente_y, 0, sizeof(buffer_gradiente_y));
     
     // --- Fase 1: Calcular Gradiente Gx --- 
-    printf("Calculando Gx...\n");
     // Itera sobre cada pixel da imagem.
     for (coord_y = 0; coord_y < ALTURA_PADRAO_IMG; coord_y++) {
         for (coord_x = 0; coord_x < LARGURA_PADRAO_IMG; coord_x++) {
@@ -465,7 +462,6 @@ void aplicar_filtro_operacao(int8_t* ponteiro_kernel_gx, int8_t* ponteiro_kernel
     // --- Fase 2: Calcular Gradiente Gy (se aplicável) --- 
     // Verifica se um kernel Gy foi fornecido.
     if (ponteiro_kernel_gy != NULL) {
-        printf("Calculando Gy...\n");
         // Itera sobre cada pixel da imagem.
         for (coord_y = 0; coord_y < ALTURA_PADRAO_IMG; coord_y++) {
             for (coord_x = 0; coord_x < LARGURA_PADRAO_IMG; coord_x++) {
@@ -477,7 +473,6 @@ void aplicar_filtro_operacao(int8_t* ponteiro_kernel_gx, int8_t* ponteiro_kernel
         }
         
         // --- Fase 3: Calcular Magnitude do Gradiente --- 
-        printf("Calculando magnitude do gradiente (sqrt(Gx^2 + Gy^2))...\n");
         // Itera sobre cada pixel.
         for (coord_y = 0; coord_y < ALTURA_PADRAO_IMG; coord_y++) {
             for (coord_x = 0; coord_x < LARGURA_PADRAO_IMG; coord_x++) {
@@ -626,13 +621,7 @@ int main() {
             while (getchar() != '\n'); 
             continue; // Volta ao início do loop while.
         }
-        
-        // Verifica se o usuário escolheu sair.
-        if (opcao_usuario == 6) {
-            printf("Encerrando o programa...\n");
-            break; // Sai do loop while.
-        }
-        
+                
         // Valida a seleção (1 a 5).
         if (validar_opcao_usuario(opcao_usuario) != 0) { 
             continue; // Se inválida, volta ao início do loop while.
@@ -676,6 +665,9 @@ int main() {
                 kernel_selecionado_gy = NULL; // Laplace não tem Gy separado.
                 codigo_tamanho_kernel_selecionado = 3; // Código para 5x5
                 break;
+             case 6:
+                  printf("Encerrando o programa...\n");
+                  break;
             // Não deve chegar aqui devido à validação anterior, mas é uma boa prática ter um default.
             default: 
                 printf("Erro interno - seleção inválida (%u) após validação.\n", opcao_usuario);
