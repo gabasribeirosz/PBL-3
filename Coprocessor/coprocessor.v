@@ -1,33 +1,40 @@
 module coprocessor (
-    input  [2:0]   op_code,         // Código que define qual operação será executada
-    input  [1:0]   matrix_size,     // Tamanho do kernel/matriz (00=2x2, 01=3x3, etc.)
-    input  [199:0] pixel_data,      // Dados da imagem (região de pixels - unsigned)
-    input  [199:0] kernel_data,     // Kernel/filtro convolucional (signed)
-    output reg     processing_done, // Sinal que indica que a operação foi finalizada
-    output reg [199:0] final_result // Resultado da operação selecionada
+    input  [2:0]   op_code,         // Código que define qual operação será executada (ex: 111 para convolução)
+    input  [1:0]   matrix_size,     // Tamanho do kernel/matriz (00=2x2, 01=3x3, 10=4x4, 11=5x5)
+    input  [199:0] pixel_data,      // Dados da imagem (região de pixels a ser processada - unsigned)
+    input  [199:0] kernel_data,     // Kernel/filtro convolucional a ser aplicado - valores com sinal (signed)
+    output reg     processing_done, // Sinal que indica que a operação foi finalizada (ativo em '1')
+    output reg [199:0] final_result // Resultado da operação solicitada (ex: resultado da convolução)
 );
 
-    // Saída intermediária do módulo de convolução
+    // Saída intermediária gerada pelo módulo de convolução
     wire [199:0] convolution_result;
 
-    // Instância do módulo de convolução que realiza o cálculo pixel × kernel
+    // Instanciação do módulo de convolução.
+    // Este módulo recebe os dados de imagem, o kernel e o tamanho da matriz,
+    // realizando a multiplicação elemento a elemento e somando os resultados,
+    // simulando uma operação de convolução comum em processamento de imagens.
     convolution convolution (
-        .pixel(pixel_data),              // Dados da imagem
-        .kernel(kernel_data),            // Filtro/kernel
-        .matrix_size(matrix_size),       // Tamanho do kernel (2x2 a 5x5)
-        .result_out(convolution_result)  // Resultado da operação de convolução
+        .pixel(pixel_data),              // Dados da imagem de entrada
+        .kernel(kernel_data),            // Dados do kernel/filtro convolucional
+        .matrix_size(matrix_size),       // Tamanho do kernel (controla lógica interna da convolução)
+        .result_out(convolution_result)  // Resultado da convolução (mesmo tamanho dos dados de entrada)
     );
 
-    // Seleção da operação a partir do código fornecido (por enquanto, apenas convolução)
+    // Bloco sempre sensível a qualquer mudança nas entradas (combinacional)
+    // Responsável por selecionar a operação a ser executada com base em 'op_code'.
+    // Atualmente, apenas a operação de convolução está implementada.
     always @(*) begin
         case (op_code)
             3'b111: begin
-                final_result     = convolution_result; // Operação: convolução
-                processing_done  = 1'b1;               // Marca como concluído
+                // Quando o código for 111, executa a operação de convolução
+                final_result     = convolution_result; // Atribui resultado da convolução à saída final
+                processing_done  = 1'b1;               // Sinaliza que o processamento foi concluído
             end
             default: begin
-                final_result     = 200'b0;             // Resultado zerado
-                processing_done  = 1'b0;               // Processamento inativo
+                // Para quaisquer outros códigos, nenhuma operação é realizada
+                final_result     = 200'b0;             // Zera a saída final
+                processing_done  = 1'b0;               // Indica que não houve processamento
             end
         endcase
     end
